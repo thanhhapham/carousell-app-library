@@ -1,0 +1,170 @@
+{
+  "fileName": "App font",
+  "textStyles": [
+    {
+      "name": "App/Title 1 · Bold · 34",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 34,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Title 2 · Bold · 24",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 24,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Title 3 · Bold · 20",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 20,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Large · Reg · 17",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 17,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Large · Callout · 17",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 17,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Middle · Reg · 15",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 15,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Middle · Callout · 15",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 15,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Middle · Reg · 15 Compact",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 15,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Middle · Callout · 15 Compact",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 15,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Small · Reg · 13",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 13,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Small · Callout · 13",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 13,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Small · Reg · 13 Compact",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 13,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Small · Callout · 13 Compact",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Bold",
+      "fontSize": 13,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Tiny · Reg · 11",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 11,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    },
+    {
+      "name": "App/Teeny Tiny · Reg · 9",
+      "fontFamily": "Fabriga",
+      "fontWeight": "Regular",
+      "fontSize": 9,
+      "letterSpacing": {
+        "unit": "PIXELS",
+        "value": 0
+      },
+      "textCase": "ORIGINAL"
+    }
+  ]
+}

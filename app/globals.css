@@ -1,0 +1,218 @@
+@font-face {
+  font-family: "Fabriga";
+  src: url("/fonts/Fabriga-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fabriga";
+  src: url("/fonts/Fabriga-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fabriga";
+  src: url("/fonts/Fabriga-Italic.woff") format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Content colors - Light mode */
+    --content-primary: 210 4% 18%;
+    --content-secondary: 215 4% 35%;
+    --content-subdued: 210 4% 78%;
+    --content-inverse: 0 0% 100%;
+    --content-on-dark: 0 0% 100%; /* Pure white #FFFFFF */
+    --content-on-light: 215 4% 35%;
+    --content-interactive: 174 100% 28%;
+    --content-interactive-strong: 174 97% 18%;
+    --content-interactive-on-light: 174 100% 28%;
+    --content-positive: 142 70% 23%;
+    --content-negative: 348 83% 35%;
+
+    /* Background colors - Light mode */
+    --background-base: 0 0% 100%;
+    --background-base-low: 240 5% 97%;
+    --background-display: 240 5% 97%;
+    --background-input: 210 17% 94%;
+    --background-disabled: 210 4% 78%;
+    --background-inverse: 210 4% 18%;
+    --background-overlay: 0 0% 0% / 0.4;
+    --background-on-image: 0 0% 0% / 0.8;
+    --background-on-image-strong: 210 4% 18%;
+    --background-on-dark: 0 0% 100%;
+    --background-elevated-low: 0 0% 100%;
+    --background-elevated-high: 0 0% 100%;
+    --background-interactive: 174 100% 28%;
+    --background-interactive-strong: 174 97% 18%;
+    --background-interactive-tint: 174 50% 89%;
+    --background-interactive-tint-strong: 174 100% 37%;
+    --background-interactive-on-image: 174 100% 28% / 0.2;
+    --background-interactive-on-image-strong: 174 97% 18% / 0.95;
+    --background-negative-subtle: 348 100% 92%;
+    --background-negative-bold: 348 83% 46%;
+    --background-positive-subtle: 142 76% 84%;
+    --background-priority: 348 85% 57%;
+    --background-priority-strong: 348 83% 46%;
+    --background-gradient: 0 0% 100%;
+
+    /* Stroke colors - Light mode */
+    --stroke-boundary: 210 17% 94%;
+    --stroke-input: 210 4% 78%;
+    --stroke-interactive: 174 100% 28%;
+    --stroke-interactive-negative: 348 83% 35%;
+    --stroke-on-image: 0 0% 100%;
+    --stroke-inverse: 0 0% 100%;
+    --stroke-halo-focused: 174 50% 89%;
+    --stroke-halo-priority: 348 100% 92%;
+
+    /* Core colors - Light mode */
+    --core-primary1: 174 100% 28%;
+    --core-primary2: 348 85% 57%;
+
+    /* Chart colors - Light mode */
+    --chart-1-bold: 348 83% 46%;
+    --chart-2-bold: 174 100% 37%;
+    --chart-3-bold: 214 95% 50%;
+    --chart-4-bold: 293 69% 36%;
+    --chart-5-bold: 215 4% 35%;
+    --chart-1-subtle: 348 100% 92%;
+    --chart-2-subtle: 174 50% 89%;
+    --chart-3-subtle: 214 95% 89%;
+    --chart-4-subtle: 293 69% 85%;
+    --chart-5-subtle: 210 17% 94%;
+
+    /* Branding colors - Light mode */
+    --branding-certified: 348 85% 57%;
+    --branding-spotlight: 293 69% 36%;
+    --branding-bump: 174 100% 37%;
+    --branding-external-ad: 214 95% 50%;
+
+    /* Legacy variables for shadcn compatibility */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Content colors - Dark mode */
+    --content-primary: 210 17% 94%;
+    --content-secondary: 210 4% 78%;
+    --content-subdued: 215 4% 44%;
+    --content-inverse: 210 4% 18%;
+    --content-on-dark: 0 0% 100%; /* Pure white #FFFFFF */
+    --content-on-light: 215 4% 35%;
+    --content-interactive: 174 100% 37%;
+    --content-interactive-strong: 174 100% 50%;
+    --content-interactive-on-light: 174 100% 28%;
+    --content-positive: 142 76% 52%;
+    --content-negative: 348 83% 69%;
+
+    /* Background colors - Dark mode */
+    --background-base: 0 0% 0%;
+    --background-base-low: 0 0% 0%;
+    --background-display: 210 4% 18%;
+    --background-input: 210 4% 26%;
+    --background-disabled: 215 4% 44%;
+    --background-inverse: 210 17% 94%;
+    --background-overlay: 0 0% 0% / 0.7;
+    --background-on-image: 0 0% 0% / 0.8;
+    --background-on-image-strong: 210 4% 18%;
+    --background-on-dark: 240 5% 97%;
+    --background-elevated-low: 240 4% 10%;
+    --background-elevated-high: 210 4% 18%;
+    --background-interactive: 174 100% 35%;
+    --background-interactive-strong: 174 100% 50%;
+    --background-interactive-tint: 174 100% 9%;
+    --background-interactive-tint-strong: 174 100% 25%;
+    --background-interactive-on-image: 174 100% 28% / 0.2;
+    --background-interactive-on-image-strong: 174 97% 18% / 0.95;
+    --background-negative-subtle: 348 83% 15%;
+    --background-negative-bold: 348 83% 55%;
+    --background-positive-subtle: 142 76% 15%;
+    --background-priority: 348 83% 46%;
+    --background-priority-strong: 348 83% 55%;
+    --background-gradient: 0 0% 0%;
+
+    /* Stroke colors - Dark mode */
+    --stroke-boundary: 210 4% 26%;
+    --stroke-input: 210 4% 78%;
+    --stroke-interactive: 174 100% 37%;
+    --stroke-interactive-negative: 348 83% 69%;
+    --stroke-on-image: 0 0% 100%;
+    --stroke-inverse: 0 0% 0%;
+    --stroke-halo-focused: 174 100% 9%;
+    --stroke-halo-priority: 348 83% 15%;
+
+    /* Core colors - Dark mode */
+    --core-primary1: 174 100% 37%;
+    --core-primary2: 348 83% 46%;
+
+    /* Chart colors - Dark mode */
+    --chart-1-bold: 348 83% 55%;
+    --chart-2-bold: 174 100% 28%;
+    --chart-3-bold: 214 95% 50%;
+    --chart-4-bold: 293 69% 52%;
+    --chart-5-bold: 210 4% 78%;
+    --chart-1-subtle: 348 83% 15%;
+    --chart-2-subtle: 174 100% 9%;
+    --chart-3-subtle: 214 95% 20%;
+    --chart-4-subtle: 293 69% 40%;
+    --chart-5-subtle: 210 4% 18%;
+
+    /* Branding colors - Dark mode */
+    --branding-certified: 348 83% 46%;
+    --branding-spotlight: 293 69% 52%;
+    --branding-bump: 174 100% 25%;
+    --branding-external-ad: 214 95% 50%;
+  }
+}
+
+@layer base {
+  html {
+    font-family: "Fabriga", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * {
+    @apply border-stroke-boundary font-fabriga;
+  }
+  body {
+    @apply bg-background-base text-content-primary font-fabriga;
+  }
+}
+
+/* Hide scrollbars globally for mobile app experience */
+@layer utilities {
+  /* Hide scrollbars for webkit browsers (Safari, Chrome) */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbars for Firefox */
+  * {
+    scrollbar-width: none;
+  }
+
+  /* Hide scrollbars for IE and Edge */
+  * {
+    -ms-overflow-style: none;
+  }
+
+  /* Ensure scrolling still works */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

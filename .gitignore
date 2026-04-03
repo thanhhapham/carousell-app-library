@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+
+# IDE and System Files
+.DS_Store
+*.swp
+*.log
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TS Config
+next-env.d.ts
