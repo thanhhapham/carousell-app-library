@@ -94,13 +94,19 @@ export function SidebarClient({ prototypes }: SidebarClientProps) {
     setCollapsedSections(newCollapsed)
   }
 
-  // Build prototype section: flat list sorted by name
-  const prototypeSection = {
-    title: "PROTOTYPE",
-    items: prototypes.map((p) => ({ name: p.name, href: p.href })),
-  }
+  // Group prototypes by category
+  const prototypesByCategory = prototypes.reduce<Record<string, { name: string; href: string }[]>>(
+    (acc, p) => {
+      const cat = p.category ?? "other"
+      if (!acc[cat]) acc[cat] = []
+      acc[cat].push({ name: p.name, href: p.href })
+      return acc
+    },
+    {}
+  )
+  const prototypeCategories = Object.keys(prototypesByCategory).sort()
 
-  const allSections = [prototypeSection, ...staticSections]
+  const allSections = staticSections
 
   return (
     <div className="w-64 bg-background-base border-r border-stroke-boundary h-screen overflow-y-auto sticky top-0">
@@ -114,6 +120,68 @@ export function SidebarClient({ prototypes }: SidebarClientProps) {
         </Link>
 
         <nav className="space-y-8">
+          {/* PROTOTYPE section with category groupings */}
+          <div>
+            <button
+              onClick={() => toggleSection("PROTOTYPE")}
+              className="flex items-center justify-between w-full text-left mb-3 hover:opacity-80 transition-opacity"
+            >
+              <h3 className="text-small-callout text-core-primary2 font-bold tracking-wider">
+                PROTOTYPE
+              </h3>
+              {collapsedSections.has("PROTOTYPE") ? (
+                <ChevronDown className="h-4 w-4 text-core-primary2" />
+              ) : (
+                <ChevronUp className="h-4 w-4 text-core-primary2" />
+              )}
+            </button>
+            {!collapsedSections.has("PROTOTYPE") && (
+              <div className="space-y-4">
+                {prototypeCategories.map((cat) => {
+                  const groupKey = `proto-${cat}`
+                  const isGroupCollapsed = collapsedSections.has(groupKey)
+                  return (
+                    <div key={cat}>
+                      <button
+                        onClick={() => toggleSection(groupKey)}
+                        className="flex items-center justify-between w-full text-left mb-1 px-1 hover:opacity-80 transition-opacity"
+                      >
+                        <span className="text-tiny-reg text-content-subdued uppercase tracking-wider">
+                          {cat}
+                        </span>
+                        {isGroupCollapsed ? (
+                          <ChevronDown className="h-3 w-3 text-content-subdued" />
+                        ) : (
+                          <ChevronUp className="h-3 w-3 text-content-subdued" />
+                        )}
+                      </button>
+                      {!isGroupCollapsed && (
+                        <ul className="space-y-1">
+                          {prototypesByCategory[cat].map((item) => (
+                            <li key={item.href}>
+                              <Link
+                                href={item.href}
+                                className={cn(
+                                  "block px-3 py-2 text-middle-reg rounded-md transition-colors",
+                                  pathname === item.href
+                                    ? "bg-background-interactive-tint text-content-interactive-strong"
+                                    : "text-content-secondary hover:text-content-primary hover:bg-background-display",
+                                )}
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Static sections (Foundation, Components, etc.) */}
           {allSections.map((section) => {
             const isCollapsed = collapsedSections.has(section.title)
             return (

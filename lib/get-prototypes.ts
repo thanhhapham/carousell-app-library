@@ -33,30 +33,46 @@ function hasPageFile(dirPath: string): boolean {
   try {
     const entries = fs.readdirSync(dirPath, { withFileTypes: true })
     return entries.some(
-      (e) => e.isDirectory() && fs.existsSync(path.join(dirPath, e.name, "page.tsx"))
+      (e) =>
+        e.isDirectory() &&
+        e.name.startsWith("[") &&
+        e.name.endsWith("]") &&
+        fs.existsSync(path.join(dirPath, e.name, "page.tsx"))
     )
   } catch {
     return false
   }
 }
 
-function resolveHref(folderName: string, dirPath: string, metaHref?: string): string {
+function resolveHref(folderPath: string, relativePath: string, metaHref?: string): string {
   if (metaHref) return metaHref
 
   // Check if it has a dynamic [param] subfolder
   try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    const entries = fs.readdirSync(folderPath, { withFileTypes: true })
     const dynamicSubfolder = entries.find(
       (e) => e.isDirectory() && e.name.startsWith("[") && e.name.endsWith("]")
     )
     if (dynamicSubfolder) {
-      return `/prototype/${folderName}/1`
+      return `/prototype/${relativePath}/1`
     }
   } catch {
     // ignore
   }
 
-  return `/prototype/${folderName}`
+  return `/prototype/${relativePath}`
+}
+
+function readMeta(dirPath: string): PrototypeMeta {
+  const metaPath = path.join(dirPath, "meta.json")
+  if (fs.existsSync(metaPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(metaPath, "utf-8"))
+    } catch {
+      // Ignore malformed meta.json
+    }
+  }
+  return {}
 }
 
 export function getPrototypes(): PrototypeEntry[] {
@@ -78,31 +94,52 @@ export function getPrototypes(): PrototypeEntry[] {
 
     const folderPath = path.join(prototypeDir, entry.name)
 
-    // Skip folders with no page.tsx anywhere
-    if (!hasPageFile(folderPath)) continue
-
-    // Read optional meta.json
-    let meta: PrototypeMeta = {}
-    const metaPath = path.join(folderPath, "meta.json")
-    if (fs.existsSync(metaPath)) {
-      try {
-        meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"))
-      } catch {
-        // Ignore malformed meta.json
+    // Check if this top-level folder itself is a prototype (has page.tsx)
+    if (hasPageFile(folderPath)) {
+      const meta = readMeta(folderPath)
+      if (!meta.hidden) {
+        prototypes.push({
+          name: meta.name ?? formatFolderName(entry.name),
+          href: resolveHref(folderPath, entry.name, meta.href),
+          folderName: entry.name,
+          category: meta.category,
+          status: meta.status,
+          description: meta.description,
+        })
       }
     }
 
-    // Skip hidden prototypes
-    if (meta.hidden) continue
+    // Also scan one level deeper for nested sub-prototypes
+    // Skip dynamic route folders ([id]) and underscore folders (_template)
+    let subEntries: fs.Dirent[]
+    try {
+      subEntries = fs.readdirSync(folderPath, { withFileTypes: true })
+    } catch {
+      continue
+    }
 
-    prototypes.push({
-      name: meta.name ?? formatFolderName(entry.name),
-      href: resolveHref(entry.name, folderPath, meta.href),
-      folderName: entry.name,
-      category: meta.category,
-      status: meta.status,
-      description: meta.description,
-    })
+    for (const subEntry of subEntries) {
+      if (!subEntry.isDirectory()) continue
+      if (subEntry.name.startsWith("_")) continue
+      if (subEntry.name.startsWith("[")) continue
+
+      const subFolderPath = path.join(folderPath, subEntry.name)
+      if (!hasPageFile(subFolderPath)) continue
+
+      const meta = readMeta(subFolderPath)
+      if (meta.hidden) continue
+
+      const relativePath = `${entry.name}/${subEntry.name}`
+
+      prototypes.push({
+        name: meta.name ?? formatFolderName(subEntry.name),
+        href: resolveHref(subFolderPath, relativePath, meta.href),
+        folderName: subEntry.name,
+        category: meta.category ?? entry.name,
+        status: meta.status,
+        description: meta.description,
+      })
+    }
   }
 
   // Sort alphabetically by name
