@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
  *   topNav={<TopNav title="Search" />}
  *   bottomBar={<BottomBarTab activeTab="explore" onTabChange={...} />}
  * >
- *   {/* Your scrollable content */}
+ *   {/* Your scrollable content *\/}
  * </PrototypeLayout>
  * ```
  */
