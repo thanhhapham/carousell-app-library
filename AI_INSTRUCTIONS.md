@@ -9,70 +9,156 @@ You are an expert Frontend Engineer helping a Designer build high-fidelity Carou
 - Icons: Lucide React
 - UI: Radix UI primitives
 
+---
+
 ## Design Token Rules
 
-### 1. Colors
+### Colors
 ALWAYS use semantic Tailwind classes instead of hex codes.
 - Red (Certified/Primary): `bg-branding-certified`, `bg-background-priority`
-- Teal (Interactive): `bg-content-interactive`, `text-content-interactive`
+- Teal (Interactive): `text-content-interactive`, `bg-background-interactive-tint`
 - Backgrounds: `bg-background-base` (white), `bg-background-display` (light gray)
 - Strokes: `border-stroke-boundary`
+- Text: `text-content-primary`, `text-content-secondary`, `text-content-subdued`, `text-content-inverse`
+- Status: `text-content-positive`, `text-content-negative`
 
-### 2. Typography
-Use the custom typography tokens defined in `tailwind.config.ts`:
+### Typography
+Use custom tokens from `tailwind.config.ts`:
 - Headlines: `text-title-1`, `text-title-2`, `text-title-3`
-- Body: `text-middle-reg`, `text-middle-callout`
-- Small: `text-small-reg`, `text-tiny-reg`
+- Callouts: `text-large-callout`, `text-middle-callout`, `text-small-callout`
+- Body: `text-middle-reg`, `text-small-reg`
+- Labels: `text-tiny-reg`, `text-teeny-tiny-reg`
 - Font: `font-fabriga` (applied globally)
 
-### 3. Components
-Prefer using existing components from `components/design-system/`:
-- `Button`: Use instead of raw `<button>`
-- `TopNav`: Use for headers
-- `Badge`: Use for status tags
+---
 
-## Input Handling Rules
+## Creating New Prototypes
 
-### Visual Inputs (Screenshots)
-If the user provides a screenshot, analyze the UI and map colors/spacing to the most relevant Carousell tokens above. DO NOT use arbritary Tailwind classes (like `bg-red-500`) if a brand token exists.
+### File location
+- Sub-feature of a category → `app/prototype/[category]/[name]/page.tsx`
+  - e.g. new autos screen → `app/prototype/autos/my-feature/`
+- Standalone with no natural category → `app/prototype/[name]/page.tsx`
+- Never nest deeper than 2 levels
+
+### meta.json (required in every prototype folder)
+```json
+{ "name": "Display Name", "category": "autos", "description": "What this prototype shows" }
+```
+No manual catalog updates needed — prototypes are auto-discovered by the sidebar and directory.
+
+### Standard page structure
+```tsx
+"use client"
+import { PrototypeLayout } from "@/components/design-system/prototype-layout"
+import { TopNav } from "@/components/design-system/top-nav/title-action"
+import { BottomBarTab } from "@/components/design-system/bottom-bar/tab"
+
+export default function MyPrototype() {
+  return (
+    <PrototypeLayout
+      topNav={<TopNav title="Screen Title" showBackButton />}
+      bottomBar={<BottomBarTab activeTab="explore" onTabChange={() => {}} />}
+    >
+      {/* scrollable content */}
+    </PrototypeLayout>
+  )
+}
+```
+
+### Mock data
+```tsx
+import { mockListings, mockInboxChats, mockProfile, mockChatMessages,
+         mockSearchListings, mockProfileListings, mockCollections } from "@/lib/mock-data"
+```
+
+---
+
+## Component Reference
+
+> **Import paths are relative to `@/components/design-system/`**
+> Read the source file for full props — this table covers the key ones for quick scaffolding.
+
+### Layout & Shell
+
+| Component | Import | Key Props |
+|---|---|---|
+| `PrototypeLayout` | `prototype-layout` | `topNav`, `bottomBar`, `statusBar?`, `statusBarTime?`, `children` |
+| `MobileStatusBar` | `mobile-status-bar` | `time?`, `className?` |
+
+### Navigation
+
+| Component | Import | Key Props |
+|---|---|---|
+| `TopNav` | `top-nav/title-action` | `title`, `variant?` (`normal`\|`shrunk`), `showBackButton?`, `showCloseButton?`, `showProfile?`, `showMoreActions?`, `showTitleChevron?`, `onBack?`, `actions?` |
+| `TopNavSearch` | `top-nav/search` | `variant?` (`default`\|`with-back`\|`typing`\|`typed`\|`vertical`), `value?`, `onValueChange?`, `onBack?`, `onSearch?`, `showCart?`, `cartCount?` |
+| `BottomBarTab` | `bottom-bar/tab` | `variant?` (`homefeed`\|`property`\|`cars`), `activeTab`, `onTabChange` |
+| `BottomBarPromote` | `bottom-bar/promote` | `variant?` (`listing`\|`coins`), `price?`, `subtext?`, `primaryButton`, `secondaryButton?` |
+| `BottomBarTask` | `bottom-bar/task` | `primaryText?`, `secondaryText?`, `helpText?`, `primaryButton`, `secondaryButton?` |
+
+### Feedback & Overlays
+
+| Component | Import | Key Props |
+|---|---|---|
+| `BottomSheet` | `bottom-sheet` | `open`, `onClose`, `title?`, `height?` (`auto`\|`half`\|`full`), `children` |
+| `Dialog` | `dialog` | `open`, `onClose`, `title`, `subtitle?`, `illustration?`, `primaryAction?`, `secondaryAction?` |
+| `Snackbar` | `snackbar` | `message`, `secondaryMessage?`, `buttonText?`, `onButtonClick?`, `autoHideDuration?`, `loading?` |
+| `Banner` | `banner` | `variant?` (`info`\|`warning`\|`error`\|`success`), `title`, `subtitle?`, `dismissible?`, `primaryAction?` |
+| `InlineState` | `inline-state` | `illustration?`, `title`, `subtitle?`, `buttonText?`, `onButtonClick?` |
+| `SpeechBubble` | `speech-bubble` | `title?`, `children`, `tipPosition?`, `actions?` |
+
+### Display
+
+| Component | Import | Key Props |
+|---|---|---|
+| `Badge` / `TagBadge` | `badge` | See badge.tsx — `ProfileBadge`, `NotificationBadge`, `TagBadge` variants |
+| `Notification` | `notification` | `title`, `subtitle?`, `timestamp?`, `avatar?`, `image?`, `unread?`, `onClick?` |
+| `Voucher` | `voucher` | `title`, `subtitle?`, `icon?`, `iconColor?`, `onClick?` |
+| `Tabs` | `tabs` | `value`, `onValueChange`, `variant?` (`normal`\|`scrollable`), + `TabsList`, `TabsTrigger`, `TabsContent` sub-components |
+
+### Cards & Listings
+
+| Component | Import | Key Props |
+|---|---|---|
+| `ListingCardGrid` | `cards/listing-card-grid` | Pass listing data — read source for full props |
+| `ListingCardList` | `cards/listing-card-list` | Pass listing data — read source for full props |
+| `ListingCardGallery` | `cards/listing-card-gallery` | Pass listing data — read source for full props |
+| `HotItemCard` | `cards/hot-item-card` | Pass listing data — read source for full props |
+
+### Inputs
+
+| Component | Import | Key Props |
+|---|---|---|
+| `Button` | `button` | `variant?` (`primary`\|`secondary`\|`text`\|`rounded`\|`icon`), `size?` (`small`\|`medium`\|`large`), `loading?`, `icon?`, `fullWidth?` |
+| `TextInput` | `input/text-input` | `label?`, `helpText?`, `errorMessage?`, `prefix?`, `suffix?`, `textLink?` |
+| `TextArea` | `input/text-area` | `label?`, `helpText?`, `errorMessage?`, `maxLength?` |
+| `Chip` / `ChipGroup` | `input/chip` | `label`, `selected?`, `variant?` (`single`\|`multi`\|`badge`\|`filter`), `size?` |
+| `Checkbox` | `input/selector` | `checked`, `onChange`, `disabled?` |
+| `Radio` | `input/selector` | `checked`, `onChange`, `disabled?` |
+| `Switch` | `input/selector` | `checked`, `onChange`, `disabled?`, `variant?` (`ios`\|...) |
+| `ListItem` | `input/list-item` | `title`, `description?`, `type?` (`radio`\|`checkbox`\|`switch`\|`chevron`), `selected?`, `size?` |
+| `Slider` | `slider` | Extends Radix Slider — `value`, `onValueChange`, `min`, `max`, `step` |
+| `Stepper` | `input/stepper` | `value`, `onChange`, `min?`, `max?`, `step?` |
+| `Picker` / `DatePicker` / `LayeredPicker` | `input/picker` | `label`, `value`, `options`, `onChange` |
+| `RatingInput` / `RatingDisplay` | `input/rating` | `value`, `onChange?`, `maxRating?`, `disabled?` |
+| `PhoneInput` | `input/phone-input` | `value`, `onChange`, `countryCode?` |
+
+### Chat
+
+| Component | Import | Key Props |
+|---|---|---|
+| `InboxRow` | `chat/inbox-row` | Conversation list row — read source for full props |
+| `ChatCell` | `chat/chat-cell` | Single message bubble — read source for full props |
+| `ChatHeader` | `chat/chat-header` | Chat conversation header — read source for full props |
+| `ChatInput` | `chat/chat-input` | Message input bar — read source for full props |
+| `ImageCell` | `chat/image-cell` | Image message bubble |
+| `SystemMessage` | `chat/system-message` | System/date divider message |
+
+---
+
+## Input Handling
 
 ### Figma Links
-If the user provides a Figma link, use Figma MCP tools to fetch the design properties and map them directly to our project's design system tokens.
+Use the Figma MCP tool (`get_design_context`) to fetch design properties, then map them to the token + component tables above.
 
-## Implementation Rules
-
-### Creating New Prototypes
-- All new prototypes go into `app/prototype/[feature-name]/page.tsx`
-- Use category-based naming: `app/prototype/chat/pinned-messages/page.tsx`
-- **No manual catalog updates needed** — prototypes are auto-discovered by the sidebar and directory page
-- Optionally add a `meta.json` in the prototype folder for custom display name, category, and description:
-  ```json
-  { "name": "Pinned Messages", "category": "chat", "description": "Chat with pinned message feature" }
-  ```
-- **Iteration**: Create new version folders (e.g., `v2`) rather than overwriting
-- **Assets**: Place reference images in a `reference/` sub-folder
-
-### Layout and Structure
-- Use `<PrototypeLayout>` from `@/components/design-system/prototype-layout` for the standard mobile frame:
-  ```tsx
-  import { PrototypeLayout } from "@/components/design-system/prototype-layout"
-
-  <PrototypeLayout topNav={<TopNav title="..." />} bottomBar={<BottomBarTab ... />}>
-    {/* Your scrollable content */}
-  </PrototypeLayout>
-  ```
-- Keep screen width capped to mobile size (`max-w-[475px] mx-auto`) — PrototypeLayout handles this automatically
-- Ensure all components with hooks are client components (`"use client"`)
-
-### Mock Data
-- Import mock data from `@/lib/mock-data` instead of duplicating inline:
-  ```tsx
-  import { mockListings, mockInboxChats, mockProfile } from "@/lib/mock-data"
-  ```
-- Available datasets: `mockListings`, `mockSearchListings`, `mockInboxChats`, `mockChatMessages`, `mockProfile`, `mockProfileListings`, `mockCollections`
-
-### Components
-- Cards: `@/components/design-system/cards` (ListingCard, HotItemCard, ListingStatus)
-- Layout: `@/components/design-system/prototype-layout` (PrototypeLayout)
-- Status bar: `@/components/design-system/mobile-status-bar` (MobileStatusBar)
-- All other components: `@/components/design-system/[component-name]`
+### Screenshots
+Analyze the UI and map colors/spacing to the nearest Carousell token. Never use arbitrary Tailwind classes (e.g. `bg-red-500`) if a brand token exists.
