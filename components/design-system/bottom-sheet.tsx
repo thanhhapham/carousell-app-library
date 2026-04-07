@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 interface BottomSheetProps {
@@ -14,28 +13,16 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ open, onClose, title, children, height = "auto", className }: BottomSheetProps) {
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
-
-    return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [open])
-
   if (!open) return null
 
   const heightStyles = {
-    auto: "max-h-[80vh]",
-    half: "h-[50vh]",
-    full: "h-[90vh]",
+    auto: "max-h-[80%]",
+    half: "h-[50%]",
+    full: "h-[90%]",
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="absolute inset-0 z-50">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 

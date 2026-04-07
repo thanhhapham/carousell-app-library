@@ -1,0 +1,5 @@
+{
+  "name": "Carpentry RFQ Chatbot",
+  "category": "chat",
+  "description": "AI chatbot prototype for collecting carpentry request-for-quote info. Three interaction options: sticky canvas, one-at-a-time, and accordion form."
+}
