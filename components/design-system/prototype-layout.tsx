@@ -30,6 +30,8 @@ interface PrototypeLayoutProps {
   topNav?: React.ReactNode
   /** Content fixed at the bottom (e.g., BottomBarTab, action buttons) */
   bottomBar?: React.ReactNode
+  /** Overlays rendered inside the phone frame (e.g., BottomSheet, modals). Use absolute positioning. */
+  overlay?: React.ReactNode
   /** Show simulated iOS status bar. Default: true */
   statusBar?: boolean
   /** Status bar time display. Default: "9:41" */
@@ -44,6 +46,7 @@ export function PrototypeLayout({
   children,
   topNav,
   bottomBar,
+  overlay,
   statusBar = true,
   statusBarTime = "9:41",
   className,
@@ -52,7 +55,7 @@ export function PrototypeLayout({
   return (
     <div
       className={cn(
-        "w-full max-w-[475px] mx-auto bg-background-base min-h-screen flex flex-col relative",
+        "w-full max-w-[475px] mx-auto bg-background-base h-screen flex flex-col relative overflow-hidden",
         className,
       )}
     >
@@ -73,6 +76,9 @@ export function PrototypeLayout({
           {bottomBar}
         </div>
       )}
+
+      {/* In-frame overlays (bottom sheets, modals) */}
+      {overlay}
     </div>
   )
 }
