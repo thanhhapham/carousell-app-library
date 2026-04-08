@@ -10,6 +10,7 @@ import { PhotoUploadTrigger } from "../inline-widgets/photo-upload-trigger"
 import { TextInputWidget } from "../inline-widgets/text-input-widget"
 import { InfoExpandable } from "../inline-widgets/info-expandable"
 import { StickyCanvasBar } from "./sticky-canvas-bar"
+import { UnsupportedCategoryCard } from "../inline-widgets/unsupported-category-card"
 import {
   QUESTIONS,
   getCompletionPercentage,
@@ -31,6 +32,8 @@ interface Option1RendererProps {
   onSkip: (questionId: QuestionId) => void
   onSubmit: () => void
   onReviewOpen: () => void
+  thinkingComponent?: React.ReactNode
+  isProcessingLongText?: boolean
 }
 
 export function Option1Renderer({
@@ -46,6 +49,8 @@ export function Option1Renderer({
   onSkip,
   onSubmit,
   onReviewOpen,
+  thinkingComponent,
+  isProcessingLongText,
 }: Option1RendererProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -112,6 +117,14 @@ export function Option1Renderer({
                 </div>
               )}
 
+              {/* Unsupported category card */}
+              {msg.widgetType === "unsupported_category" && msg.widgetData && (
+                <UnsupportedCategoryCard
+                  category={msg.widgetData.category}
+                  searchLinks={msg.widgetData.searchLinks}
+                />
+              )}
+
               {/* On completion, just show a prompt to open the canvas */}
               {msg.widgetType === "summary_card" && (
                 <div className="ml-11 mr-4 mt-1 mb-2">
@@ -135,7 +148,8 @@ export function Option1Renderer({
           )
         })}
 
-        {isTyping && <TypingIndicator />}
+        {isProcessingLongText && thinkingComponent}
+        {isTyping && !isProcessingLongText && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
     </div>

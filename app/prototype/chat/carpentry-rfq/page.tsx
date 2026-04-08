@@ -15,6 +15,7 @@ import {
   type ChatMessage,
   type QuestionId,
   type Answer,
+  type ExtractionResult,
   createMessage,
   getGreetingMessages,
   getCompletionMessage,
@@ -22,7 +23,12 @@ import {
   findNextUnansweredIndex,
   getSectionTransition,
   isFormComplete,
+  extractFromLongText,
+  SAMPLE_LONG_TEXT,
+  SAMPLE_UNSUPPORTED_TEXT,
 } from "./components/conversation-engine"
+import { ThinkingStyleRenderer } from "./components/thinking-styles/thinking-style-renderer"
+import type { ThinkingStyle } from "./components/floating-toggle"
 
 // ─── Material options ─────────────────────────────────────────────────────────
 
@@ -46,7 +52,7 @@ function makeInitialMessages(): ChatMessage[] {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CarpentryRFQChatbot() {
-  const [activeOption, setActiveOption] = useState<1 | 2 | 3>(2)
+  const [activeOption, setActiveOption] = useState<1 | 2 | 3>(1)
   const [messages, setMessages] = useState<ChatMessage[]>(makeInitialMessages)
   const [answers, setAnswers] = useState<Map<QuestionId, Answer>>(new Map())
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -59,6 +65,14 @@ export default function CarpentryRFQChatbot() {
 
   // Option 3: highlighted field from keyword match
   const [highlightedField, setHighlightedField] = useState<QuestionId | null>(null)
+
+  // AI Thinking style
+  const [activeThinkingStyle, setActiveThinkingStyle] = useState<ThinkingStyle>(1)
+  const [isProcessingLongText, setIsProcessingLongText] = useState(false)
+  const [extractionResult, setExtractionResult] = useState<ExtractionResult | null>(null)
+
+  // Increments on every reset — used as key on ChatInput to force remount
+  const [chatInputKey, setChatInputKey] = useState(0)
 
   // Shared bottom sheet (material / photo)
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false)
@@ -253,6 +267,17 @@ export default function CarpentryRFQChatbot() {
   const handleChatSend = useCallback(
     (text: string) => {
       setMessages((prev) => [...prev, createMessage("user", text)])
+
+      // Check for long-text extraction
+      const extraction = extractFromLongText(text)
+      if (extraction.extractedFields.length >= 3 || extraction.isUnsupported) {
+        // Long text detected — trigger thinking animation
+        setIsProcessingLongText(true)
+        setExtractionResult(extraction)
+        return
+      }
+
+      // Normal single-keyword flow
       const result = processUserInput(text, currentQuestionIndex)
 
       setIsTyping(true)
@@ -289,10 +314,73 @@ export default function CarpentryRFQChatbot() {
     [currentQuestionIndex, answers, activeOption, advanceToNextQuestion],
   )
 
-  // ─── Option switch ─────────────────────────────────────────────────────────
+  // ─── Thinking complete handler ─────────────────────────────────────────────
 
-  const handleOptionChange = useCallback((option: 1 | 2 | 3) => {
-    setActiveOption(option)
+  const handleThinkingComplete = useCallback(() => {
+    if (!extractionResult) return
+    setIsProcessingLongText(false)
+
+    // Batch-set all extracted answers
+    const updated = new Map(answers)
+    extractionResult.extractedAnswers.forEach((answer, key) => {
+      updated.set(key, answer)
+    })
+    setAnswers(updated)
+
+    const count = extractionResult.extractedFields.length
+    const missing = extractionResult.missingFields.length
+
+    // Add summary bot message
+    setMessages((prev) => [
+      ...prev,
+      createMessage(
+        "bot",
+        `I extracted ${count} details from your message. ${missing > 0 ? `Just ${missing} more things to confirm.` : "Everything looks complete!"}`,
+      ),
+    ])
+
+    // Advance to first missing question
+    if (extractionResult.missingFields.length > 0) {
+      const firstMissing = extractionResult.missingFields[0]
+      const idx = QUESTIONS.findIndex((q) => q.id === firstMissing)
+      setCurrentQuestionIndex(idx)
+      if (activeOption !== 3) {
+        const q = QUESTIONS[idx]
+        setTimeout(() => {
+          setMessages((prev) => [...prev, createMessage("bot", q.prompt, q.id)])
+        }, 600)
+      }
+    } else {
+      setIsComplete(true)
+    }
+
+    setExtractionResult(null)
+  }, [extractionResult, answers, activeOption])
+
+  const handleThinkingAddMessage = useCallback((text: string) => {
+    setMessages((prev) => [...prev, createMessage("bot", text)])
+  }, [])
+
+  const handleThinkingUnsupported = useCallback(() => {
+    if (!extractionResult) return
+    setIsProcessingLongText(false)
+    const category = extractionResult.unsupportedCategory || "this service"
+    const searchLinks = extractionResult.unsupportedSearchLinks || []
+
+    setMessages((prev) => [
+      ...prev,
+      createMessage(
+        "bot",
+        `Oops, looks like you're looking for ${category} help — that's not something I cover here. But Carousell has loads of verified providers who can help!`,
+      ),
+      createMessage("bot", undefined, undefined, "unsupported_category", { category, searchLinks }),
+    ])
+    setExtractionResult(null)
+  }, [extractionResult])
+
+  // ─── Shared reset ─────────────────────────────────────────────────────────
+
+  const resetConversation = useCallback(() => {
     setMessages(makeInitialMessages)
     setAnswers(new Map())
     setCurrentQuestionIndex(0)
@@ -302,13 +390,25 @@ export default function CarpentryRFQChatbot() {
     setCanvasOpen(false)
     setBottomSheetOpen(false)
     setHighlightedField(null)
-    // Reset all scroll positions
+    setIsProcessingLongText(false)
+    setExtractionResult(null)
+    setChatInputKey((k) => k + 1)
     setTimeout(() => {
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
       document.querySelector("main")?.scrollTo({ top: 0 })
     }, 0)
   }, [])
+
+  const handleOptionChange = useCallback((option: 1 | 2 | 3) => {
+    setActiveOption(option)
+    resetConversation()
+  }, [resetConversation])
+
+  const handleThinkingStyleChange = useCallback((style: ThinkingStyle) => {
+    setActiveThinkingStyle(style)
+    resetConversation()
+  }, [resetConversation])
 
   const handleMaterialSelect = useCallback(
     (value: string, label: string) => {
@@ -353,9 +453,18 @@ export default function CarpentryRFQChatbot() {
       bottomBar={
         showChatInput ? (
           <ChatInput
+            key={chatInputKey}
             placeholder="Ask anything"
-            suggestedMessages={[]}
+            suggestedMessages={
+              !isProcessingLongText && answers.size === 0
+                ? ["📋 Try with a detailed brief", "🚫 Try unsupported scenario"]
+                : []
+            }
             onSend={handleChatSend}
+            onSuggestedSend={(label) => {
+              if (label.includes("detailed brief")) handleChatSend(SAMPLE_LONG_TEXT)
+              else if (label.includes("unsupported")) handleChatSend(SAMPLE_UNSUPPORTED_TEXT)
+            }}
           />
         ) : undefined
       }
@@ -439,7 +548,12 @@ export default function CarpentryRFQChatbot() {
     >
       <div className="relative h-full flex flex-col">
         {/* Floating toggle */}
-        <FloatingToggle activeOption={activeOption} onOptionChange={handleOptionChange} />
+        <FloatingToggle
+          activeOption={activeOption}
+          onOptionChange={handleOptionChange}
+          activeThinkingStyle={activeThinkingStyle}
+          onThinkingStyleChange={handleThinkingStyleChange}
+        />
 
         {/* Renderers */}
         <div className="flex-1 min-h-0">
@@ -457,6 +571,23 @@ export default function CarpentryRFQChatbot() {
               onSkip={handleSkip}
               onSubmit={handleSubmit}
               onReviewOpen={() => setCanvasOpen(true)}
+              isProcessingLongText={isProcessingLongText}
+              thinkingComponent={
+                isProcessingLongText && extractionResult ? (
+                  <ThinkingStyleRenderer
+                    style={activeThinkingStyle}
+                    steps={extractionResult.thinkingSteps}
+                    extractedAnswers={extractionResult.extractedAnswers}
+                    missingFields={extractionResult.missingFields}
+                    thoughtStream={extractionResult.thoughtStream}
+                    progressiveTurns={extractionResult.progressiveTurns}
+                    isUnsupported={extractionResult.isUnsupported}
+                    onComplete={handleThinkingComplete}
+                    onUnsupported={handleThinkingUnsupported}
+                    onAddMessage={handleThinkingAddMessage}
+                  />
+                ) : undefined
+              }
             />
           )}
           {activeOption === 2 && (
@@ -472,6 +603,23 @@ export default function CarpentryRFQChatbot() {
               onTextSubmit={handleTextSubmit}
               onSkip={handleSkip}
               onSubmit={handleSubmit}
+              isProcessingLongText={isProcessingLongText}
+              thinkingComponent={
+                isProcessingLongText && extractionResult ? (
+                  <ThinkingStyleRenderer
+                    style={activeThinkingStyle}
+                    steps={extractionResult.thinkingSteps}
+                    extractedAnswers={extractionResult.extractedAnswers}
+                    missingFields={extractionResult.missingFields}
+                    thoughtStream={extractionResult.thoughtStream}
+                    progressiveTurns={extractionResult.progressiveTurns}
+                    isUnsupported={extractionResult.isUnsupported}
+                    onComplete={handleThinkingComplete}
+                    onUnsupported={handleThinkingUnsupported}
+                    onAddMessage={handleThinkingAddMessage}
+                  />
+                ) : undefined
+              }
             />
           )}
           {activeOption === 3 && (
@@ -488,6 +636,23 @@ export default function CarpentryRFQChatbot() {
               onTextSubmit={handleTextSubmit}
               onSkip={handleSkip}
               onSubmit={handleSubmit}
+              isProcessingLongText={isProcessingLongText}
+              thinkingComponent={
+                isProcessingLongText && extractionResult ? (
+                  <ThinkingStyleRenderer
+                    style={activeThinkingStyle}
+                    steps={extractionResult.thinkingSteps}
+                    extractedAnswers={extractionResult.extractedAnswers}
+                    missingFields={extractionResult.missingFields}
+                    thoughtStream={extractionResult.thoughtStream}
+                    progressiveTurns={extractionResult.progressiveTurns}
+                    isUnsupported={extractionResult.isUnsupported}
+                    onComplete={handleThinkingComplete}
+                    onUnsupported={handleThinkingUnsupported}
+                    onAddMessage={handleThinkingAddMessage}
+                  />
+                ) : undefined
+              }
             />
           )}
         </div>

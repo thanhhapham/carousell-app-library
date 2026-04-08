@@ -10,6 +10,7 @@ import { PhotoUploadTrigger } from "../inline-widgets/photo-upload-trigger"
 import { TextInputWidget } from "../inline-widgets/text-input-widget"
 import { InfoExpandable } from "../inline-widgets/info-expandable"
 import { SummaryCard } from "../inline-widgets/summary-card"
+import { UnsupportedCategoryCard } from "../inline-widgets/unsupported-category-card"
 import {
   QUESTIONS,
   SECTIONS,
@@ -30,6 +31,8 @@ interface Option2RendererProps {
   onTextSubmit: (questionId: QuestionId, text: string) => void
   onSkip: (questionId: QuestionId) => void
   onSubmit: () => void
+  thinkingComponent?: React.ReactNode
+  isProcessingLongText?: boolean
 }
 
 export function Option2Renderer({
@@ -44,6 +47,8 @@ export function Option2Renderer({
   onTextSubmit,
   onSkip,
   onSubmit,
+  thinkingComponent,
+  isProcessingLongText,
 }: Option2RendererProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -110,6 +115,14 @@ export function Option2Renderer({
                 </div>
               )}
 
+              {/* Unsupported category card */}
+              {msg.widgetType === "unsupported_category" && msg.widgetData && (
+                <UnsupportedCategoryCard
+                  category={msg.widgetData.category}
+                  searchLinks={msg.widgetData.searchLinks}
+                />
+              )}
+
               {/* Summary card */}
               {msg.widgetType === "summary_card" && (
                 <SummaryCard answers={answers} onSubmit={onSubmit} />
@@ -118,7 +131,8 @@ export function Option2Renderer({
           )
         })}
 
-        {isTyping && <TypingIndicator />}
+        {isProcessingLongText && thinkingComponent}
+        {isTyping && !isProcessingLongText && <TypingIndicator />}
 
         <div ref={bottomRef} />
       </div>

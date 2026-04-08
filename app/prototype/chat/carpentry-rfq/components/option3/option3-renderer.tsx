@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { BotAvatar } from "../bot-avatar"
 import { TypingIndicator } from "../typing-indicator"
 import { AccordionForm } from "./accordion-form"
+import { UnsupportedCategoryCard } from "../inline-widgets/unsupported-category-card"
 import {
   type ChatMessage,
   type QuestionId,
@@ -24,6 +25,8 @@ interface Option3RendererProps {
   onTextSubmit: (questionId: QuestionId, text: string) => void
   onSkip: (questionId: QuestionId) => void
   onSubmit: () => void
+  thinkingComponent?: React.ReactNode
+  isProcessingLongText?: boolean
 }
 
 export function Option3Renderer({
@@ -39,6 +42,8 @@ export function Option3Renderer({
   onTextSubmit,
   onSkip,
   onSubmit,
+  thinkingComponent,
+  isProcessingLongText,
 }: Option3RendererProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const initialMessageCount = useRef(messages.length)
@@ -51,8 +56,9 @@ export function Option3Renderer({
   }, [messages.length])
 
   // Only show bot text messages (no inline widgets — those are all in the accordion)
+  // Also include unsupported_category widget messages even without text
   const textMessages = messages.filter(
-    (m) => m.text && m.widgetType !== "summary_card",
+    (m) => (m.text && m.widgetType !== "summary_card") || m.widgetType === "unsupported_category",
   )
 
   return (
@@ -60,32 +66,44 @@ export function Option3Renderer({
       {/* Bot greeting messages */}
       <div className="pt-2">
         {textMessages.map((msg) => (
-          <div
-            key={msg.id}
-            className={cn(
-              "flex gap-3 px-4 py-2",
-              msg.sender === "user" ? "flex-row-reverse" : "flex-row",
+          <div key={msg.id}>
+            {msg.text && (
+              <div
+                className={cn(
+                  "flex gap-3 px-4 py-2",
+                  msg.sender === "user" ? "flex-row-reverse" : "flex-row",
+                )}
+              >
+                {msg.sender === "bot" && <BotAvatar />}
+                <div
+                  className={cn(
+                    "max-w-[75%] px-4 py-3 rounded-2xl",
+                    msg.sender === "user"
+                      ? "bg-background-input text-content-primary rounded-br-md"
+                      : "border border-stroke-boundary text-content-primary rounded-bl-md",
+                  )}
+                >
+                  <p className="text-middle-reg whitespace-pre-wrap">{msg.text}</p>
+                </div>
+              </div>
             )}
-          >
-            {msg.sender === "bot" && <BotAvatar />}
-            <div
-              className={cn(
-                "max-w-[75%] px-4 py-3 rounded-2xl",
-                msg.sender === "user"
-                  ? "bg-background-input text-content-primary rounded-br-md"
-                  : "border border-stroke-boundary text-content-primary rounded-bl-md",
-              )}
-            >
-              <p className="text-middle-reg whitespace-pre-wrap">{msg.text}</p>
-            </div>
+
+            {/* Unsupported category card */}
+            {msg.widgetType === "unsupported_category" && msg.widgetData && (
+              <UnsupportedCategoryCard
+                category={msg.widgetData.category}
+                searchLinks={msg.widgetData.searchLinks}
+              />
+            )}
           </div>
         ))}
       </div>
 
-      {isTyping && <TypingIndicator />}
+      {isProcessingLongText && thinkingComponent}
+      {isTyping && !isProcessingLongText && <TypingIndicator />}
 
-      {/* Accordion form — appears after greeting */}
-      {!isTyping && (
+      {/* Accordion form — appears after greeting, hidden during long-text processing or unsupported scenario */}
+      {!isTyping && !isProcessingLongText && !messages.some((m) => m.widgetType === "unsupported_category") && (
         <div className="mt-2 mb-4">
           <AccordionForm
             answers={answers}

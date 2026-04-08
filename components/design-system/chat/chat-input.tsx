@@ -9,6 +9,7 @@ interface ChatInputProps {
   placeholder?: string
   suggestedMessages?: string[]
   onSend?: (message: string) => void
+  onSuggestedSend?: (suggestion: string) => void
   onImageSelect?: () => void
   className?: string
   showKeyboard?: boolean
@@ -18,6 +19,7 @@ export function ChatInput({
   placeholder = "Type here...",
   suggestedMessages = ["Hi are you still interested?", "No problem"],
   onSend,
+  onSuggestedSend,
   onImageSelect,
   className,
   showKeyboard = false,
@@ -33,8 +35,13 @@ export function ChatInput({
   }
 
   const handleSuggestionClick = (suggestion: string) => {
-    setMessage(suggestion)
-    setShowSuggestions(false)
+    if (onSuggestedSend) {
+      onSuggestedSend(suggestion)
+      setShowSuggestions(false)
+    } else {
+      setMessage(suggestion)
+      setShowSuggestions(false)
+    }
   }
 
   return (
