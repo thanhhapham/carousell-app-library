@@ -18,3 +18,4 @@ build/
 
 # TS Config
 next-env.d.ts
+.claude/
