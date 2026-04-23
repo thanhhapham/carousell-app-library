@@ -8,6 +8,7 @@ export interface PrototypeMeta {
   status?: "ready" | "wip" | "draft"
   href?: string
   hidden?: boolean
+  order?: number
 }
 
 export interface PrototypeEntry {
@@ -17,6 +18,7 @@ export interface PrototypeEntry {
   category?: string
   status?: string
   description?: string
+  order?: number
 }
 
 function formatFolderName(folder: string): string {
@@ -105,6 +107,7 @@ export function getPrototypes(): PrototypeEntry[] {
           category: meta.category,
           status: meta.status,
           description: meta.description,
+          order: meta.order,
         })
       }
     }
@@ -138,10 +141,16 @@ export function getPrototypes(): PrototypeEntry[] {
         category: meta.category ?? entry.name,
         status: meta.status,
         description: meta.description,
+        order: meta.order,
       })
     }
   }
 
-  // Sort alphabetically by name
-  return prototypes.sort((a, b) => a.name.localeCompare(b.name))
+  // Sort: items with an explicit order come first (ascending), then alphabetical
+  return prototypes.sort((a, b) => {
+    const aOrd = a.order ?? Infinity
+    const bOrd = b.order ?? Infinity
+    if (aOrd !== bOrd) return aOrd - bOrd
+    return a.name.localeCompare(b.name)
+  })
 }

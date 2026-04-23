@@ -1,0 +1,6 @@
+{
+  "name": "Spotlight",
+  "category": "seller-tools",
+  "description": "Spotlight settings page: set daily max clicks, campaign duration, and bid priority.",
+  "order": 3
+}
