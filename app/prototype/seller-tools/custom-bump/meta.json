@@ -1,0 +1,6 @@
+{
+  "name": "Custom Bump",
+  "category": "seller-tools",
+  "description": "Customise your Bumps sheet: choose days, set duration, toggle timings, and set bumps-per-day.",
+  "hidden": true
+}

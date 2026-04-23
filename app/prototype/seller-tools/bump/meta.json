@@ -1,0 +1,6 @@
+{
+  "name": "Bump",
+  "category": "seller-tools",
+  "description": "Bump tool bottom sheet with Smart Bump (budget + sliders) and Regular Bump (package selection) tabs.",
+  "order": 2
+}

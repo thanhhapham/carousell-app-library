@@ -1,0 +1,6 @@
+{
+  "name": "Coin History",
+  "category": "seller-tools",
+  "description": "Coin transaction history: credits and debits grouped by month with per-transaction detail rows.",
+  "order": 5
+}
